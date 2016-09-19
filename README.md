@@ -1,14 +1,14 @@
 # node-resx-to-typescript
 
-Source code for node module: resx-to-typescript
+Source code for forked node module of resx-to-typescript
 
-Node module for generating TypeScript (models) files based on resx files.
+Node module for generating TypeScript (model definition) files based on resx files.
 
 To use this node module at a reference to your project package.json dependencies.
 
 {
     "dependencies": {
-        "resx-to-typescript": "1.0.12"
+        "resx-to-typescript": "1.0.13"
     }
 }
 
@@ -28,6 +28,8 @@ where the parameters stand for:
 
 UPDATES:
 
+2016-09-19 Switched to creating a typescript definition file (.d.ts) and added support for
+                nested resources using '_' between key names.
 2016-08-19 Refactored code and added support for multi line resources. (v 1.0.12)
 
 Voilá, the TypeScript models for your resx files are added to your project and ready to use in typescript development/mvc bundling.
