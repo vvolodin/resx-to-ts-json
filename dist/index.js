@@ -5,7 +5,7 @@ var mkpath = require('mkpath');
 var search = require('recursive-search');
 var xml2js = require('xml2js');
 var virtualProjectRoot = '\\..\\..\\..\\';
-function execute(typeScriptResourcesNamespace, virtualResxFolder, virtualTypeScriptFolder) {
+function executeResxToTs(typeScriptResourcesNamespace, virtualResxFolder, virtualTypeScriptFolder) {
     var files = getFilesFromFolder(virtualResxFolder);
     if (files !== undefined && files !== null) {
         for (var i = 0, length_1 = files.length; i < length_1; i++) {
@@ -14,7 +14,7 @@ function execute(typeScriptResourcesNamespace, virtualResxFolder, virtualTypeScr
         }
     }
 }
-exports.execute = execute;
+exports.executeResxToTs = executeResxToTs;
 function executeResxToJson(virtualResxFolder, virtualJsonFolder) {
     var files = getFilesFromFolder(virtualResxFolder);
     if (files !== undefined && files !== null) {
@@ -177,11 +177,11 @@ function convertXmlToJsonFile(xmlObject, resxFilename, virtualJsonFolder) {
 }
 function getProjectRoot() {
     var splittedDirName = __dirname.split('\\');
-    var spliitedRootDirName = [];
+    var splittedRootDirName = [];
     for (var i = 0, length_3 = splittedDirName.length - 3; i < length_3; i++) {
-        spliitedRootDirName.push(splittedDirName[i]);
+        splittedRootDirName.push(splittedDirName[i]);
     }
-    return spliitedRootDirName.join('\\');
+    return splittedRootDirName.join('\\');
 }
 function decapitalizeFirstLetter(input) {
     return input.charAt(0).toLowerCase() + input.slice(1);
