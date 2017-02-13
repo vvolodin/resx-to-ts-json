@@ -20,5 +20,6 @@ declare module app.resources {
 				resource: string;
 			};
 		};
+		ValueWithSingleQuote: string;
 	}
 }

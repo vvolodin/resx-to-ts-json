@@ -145,4 +145,8 @@
     <value>Test</value>
     <comment>Test comment.</comment>
   </data>
+  <data name="ValueWithSingleQuote" xml:space="preserve">
+    <value>Some 'single quotes'</value>
+    <comment>Test comment.</comment>
+  </data>
 </root>

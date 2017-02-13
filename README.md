@@ -1,4 +1,4 @@
-# resx-to-ts-json
+﻿# resx-to-ts-json
 
 Source code for the resx-to-ts-json node module, originally forked from resx-to-typescript
 
@@ -36,7 +36,7 @@ To use this node module add a reference to your project package.json dependencie
 ```
 {
     "dependencies": {
-        "resx-to-ts-json": "1.0.13"
+        "resx-to-ts-json": "1.0.14"
     }
 }
 ```
@@ -58,6 +58,8 @@ where the parameters stand for:
 
 
 UPDATES:
+
+2017-02-13 Remove unnecessary escaping of single quotes in string values. (v 1.0.14)
 
 2016-09-20 Switched to creating a typescript definition file (.d.ts), json file (.json), and added support for
                 nested resources using '_' between key names. (v 1.0.13)

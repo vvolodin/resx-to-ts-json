@@ -97,7 +97,7 @@ function convertXmlToDictionary(xmlObject: any) {
     if (xmlObject.root.data !== undefined) { 
         for (let i = 0, nrOfResourcesInFile = xmlObject.root.data.length; i < nrOfResourcesInFile; i++) {
             const key = xmlObject.root.data[i].$.name; // 
-            const value =  xmlObject.root.data[i].value.toString().replace(/'/g, "\\'");   
+            const value =  xmlObject.root.data[i].value.toString();   
 
             parseToDictionaryItem(key, value, dictionary);  
         }           
