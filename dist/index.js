@@ -73,7 +73,7 @@ function convertXmlToDictionary(xmlObject) {
     if (xmlObject.root.data !== undefined) {
         for (var i = 0, nrOfResourcesInFile = xmlObject.root.data.length; i < nrOfResourcesInFile; i++) {
             var key = xmlObject.root.data[i].$.name; // 
-            var value = xmlObject.root.data[i].value.toString().replace(/'/g, "\\'");
+            var value = xmlObject.root.data[i].value.toString();
             parseToDictionaryItem(key, value, dictionary);
         }
     }
