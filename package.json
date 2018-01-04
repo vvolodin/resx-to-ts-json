@@ -1,18 +1,18 @@
 {
-  "name": "resx-to-ts-json",
-  "version": "1.0.14",
-  "description": "Converts resx files to TypeScript definitions and json files",
+  "name": "resx-to-ts-json-options",
+  "version": "1.0.15",
+  "description": "Converts resx files to TypeScript definitions and json files, configurable version",
   "main": "dist/index.js",
   "scripts": {
     "test": "node dist/test.js",
     "build": "tsc -p ./"
   },
   "author": {
-    "name": "Hasan Afzal",
+    "name": "Vladimir Volodin",
     "originalAuthor": "Martijn van der Corput"
   },
   "devDependencies": {
-    "typescript": "^1.8.10"
+    "typescript": "^2.6.0"
   },
   "dependencies": {
     "add-typescript-file-to-project": "1.0.1",
@@ -22,7 +22,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hmafzal/resx-to-ts-json.git"
+    "url": "git+https://github.com/vvolodin/resx-to-ts-json"
   },
   "keywords": [
     "typescript",
@@ -35,7 +35,7 @@
   ],
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/hmafzal/resx-to-ts-json/issues"
+    "url": "https://github.com/vvolodin/resx-to-ts-json"
   },
-  "homepage": "https://github.com/hmafzal/resx-to-ts-json#readme"
+  "homepage": "https://github.com/vvolodin/resx-to-ts-json#readme"
 }
