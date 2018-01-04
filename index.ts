@@ -229,7 +229,7 @@ function convertXmlToTypeScriptValuesFile(xmlObject: any, resxFilename: string, 
     content = content + 'export const ' + className + ': ' + typeScriptResourcesNamespace + '.' + className + ' = ' ;
 
     let dictionary = convertXmlToDictionary(xmlObject);
-    content = content + convertDictionaryToTsValues(dictionary, 0);
+    content = content + convertDictionaryToTsValues(dictionary, 0, className + '.');
     content = content + '\n';//'\n}\n';
     
     // Write model if resources found

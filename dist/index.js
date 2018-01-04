@@ -184,7 +184,7 @@ function convertXmlToTypeScriptValuesFile(xmlObject, resxFilename, typeScriptRes
     //content = content + 'declare module ' + typeScriptResourcesNamespace + ' {\n';
     content = content + 'export const ' + className + ': ' + typeScriptResourcesNamespace + '.' + className + ' = ';
     var dictionary = convertXmlToDictionary(xmlObject);
-    content = content + convertDictionaryToTsValues(dictionary, 0);
+    content = content + convertDictionaryToTsValues(dictionary, 0, className + '.');
     content = content + '\n'; //'\n}\n';
     // Write model if resources found
     if (Object.keys(dictionary).length > 0) {
