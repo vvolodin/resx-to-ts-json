@@ -1,49 +1,59 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var addTypeScriptFile = require('add-typescript-file-to-project');
-var fs = require('fs');
-var mkpath = require('mkpath');
-var search = require('recursive-search');
-var xml2js = require('xml2js');
-var virtualProjectRoot = '\\..\\..\\..\\';
-function executeResxToTs(typeScriptResourcesNamespace, virtualResxFolder, virtualTypeScriptFolder) {
-    var files = getFilesFromFolder(virtualResxFolder);
-    if (files !== undefined && files !== null) {
-        for (var i = 0, length_1 = files.length; i < length_1; i++) {
-            var resxFilename = files[i];
-            convertResxToTypeScriptModel(resxFilename, typeScriptResourcesNamespace, virtualTypeScriptFolder);
-        }
-    }
+const addTypeScriptFile = require('add-typescript-file-to-project');
+const fs = require('fs');
+const mkpath = require('mkpath');
+const search = require('recursive-search');
+const xml2js = require('xml2js');
+const async = require('async');
+const virtualProjectRoot = '\\..\\..\\..\\';
+function executeResxToTs(typeScriptResourcesNamespace, virtualResxFolder, virtualTypeScriptFolder, callback) {
+    let files = getFilesFromFolder(virtualResxFolder);
+    async.each(files, (file, cb) => {
+        convertResxToTypeScriptModel(file, typeScriptResourcesNamespace, virtualTypeScriptFolder, cb);
+    }, callback);
+    //if (files !== undefined && files !== null) {
+    //    for (let i = 0, length = files.length; i < length; i++) {   
+    //        const resxFilename = files[i];
+    //        convertResxToTypeScriptModel(resxFilename, typeScriptResourcesNamespace, virtualTypeScriptFolder);
+    //    }
+    //}
 }
 exports.executeResxToTs = executeResxToTs;
-function executeResxToJson(virtualResxFolder, virtualJsonFolder, fileNameLanguage) {
-    var files = getFilesFromFolder(virtualResxFolder);
-    if (files !== undefined && files !== null) {
-        for (var i = 0, length_2 = files.length; i < length_2; i++) {
-            var resxFilename = files[i];
-            convertResxToJson(resxFilename, virtualJsonFolder, fileNameLanguage);
-        }
-    }
+function executeResxToJson(virtualResxFolder, virtualJsonFolder, fileNameLanguage, callback) {
+    let files = getFilesFromFolder(virtualResxFolder);
+    async.each(files, (file, cb) => {
+        convertResxToJson(file, virtualJsonFolder, fileNameLanguage, cb);
+    }, callback);
+    //if (files !== undefined && files !== null) {
+    //    for (let i = 0, length = files.length; i < length; i++) {   
+    //        const resxFilename = files[i];
+    //        convertResxToJson(resxFilename, virtualJsonFolder, fileNameLanguage);
+    //    }
+    //}
 }
 exports.executeResxToJson = executeResxToJson;
-function executeResxToTsValues(typeScriptResourcesNamespace, virtualResxFolder, virtualTypeScriptFolder) {
-    var files = getFilesFromFolder(virtualResxFolder);
-    if (files !== undefined && files !== null) {
-        for (var i = 0, length_3 = files.length; i < length_3; i++) {
-            var resxFilename = files[i];
-            convertResxToTypeScriptValues(resxFilename, typeScriptResourcesNamespace, virtualTypeScriptFolder);
-        }
-    }
+function executeResxToTsValues(typeScriptResourcesNamespace, virtualResxFolder, virtualTypeScriptFolder, callback) {
+    let files = getFilesFromFolder(virtualResxFolder);
+    async.each(files, (file, cb) => {
+        convertResxToTypeScriptValues(file, typeScriptResourcesNamespace, virtualTypeScriptFolder, cb);
+    }, callback);
+    //if (files !== undefined && files !== null) {
+    //    for (let i = 0, length = files.length; i < length; i++) {   
+    //        const resxFilename = files[i];
+    //        convertResxToTypeScriptValues(resxFilename, typeScriptResourcesNamespace, virtualTypeScriptFolder);
+    //    }
+    //}
 }
 exports.executeResxToTsValues = executeResxToTsValues;
 function getFilesFromFolder(virtualResxFolder) {
-    var files = null;
+    let files = null;
     if (virtualResxFolder === undefined || virtualResxFolder === '') {
         files = search.recursiveSearchSync(/.resx$/, __dirname + virtualProjectRoot);
     }
     else {
         virtualResxFolder = virtualResxFolder.replace(/\//g, '\\');
-        var safeVirtualFolder = virtualResxFolder;
+        let safeVirtualFolder = virtualResxFolder;
         if (safeVirtualFolder.charAt(0) === '\\') {
             safeVirtualFolder = safeVirtualFolder.substr(1);
         }
@@ -53,48 +63,69 @@ function getFilesFromFolder(virtualResxFolder) {
         files = search.recursiveSearchSync(/.resx$/, __dirname + virtualProjectRoot + safeVirtualFolder);
     }
     if (files !== undefined && files !== null) {
-        var filesAsString = JSON.stringify(files).replace('[', "").replace(']', "");
-        var splittedFiles = filesAsString.split(',');
-        var cleanedFiles = splittedFiles.map(function (fileName) { return fileName.trim().replace(/"/g, "").replace(/\\\\/g, "\\"); });
+        const filesAsString = JSON.stringify(files).replace('[', "").replace(']', "");
+        const splittedFiles = filesAsString.split(',');
+        let cleanedFiles = splittedFiles.map((fileName) => fileName.trim().replace(/"/g, "").replace(/\\\\/g, "\\"));
         return cleanedFiles;
     }
 }
-function convertResxToTypeScriptValues(resxFilename, typeScriptResourcesNamespace, virtualTypeScriptFolder) {
+function convertResxToTypeScriptValues(resxFilename, typeScriptResourcesNamespace, virtualTypeScriptFolder, callback) {
     fs.readFile(resxFilename, function (err, data) {
-        var parser = new xml2js.Parser();
+        const parser = new xml2js.Parser();
         parser.parseString(data, function (err, result) {
+            if (err && callback) {
+                callback(err);
+                return;
+            }
             if (result !== undefined) {
                 convertXmlToTypeScriptValuesFile(result, resxFilename, typeScriptResourcesNamespace, virtualTypeScriptFolder);
+                if (callback !== undefined) {
+                    callback();
+                }
             }
         });
     });
 }
-function convertResxToTypeScriptModel(resxFilename, typeScriptResourcesNamespace, virtualTypeScriptFolder) {
+function convertResxToTypeScriptModel(resxFilename, typeScriptResourcesNamespace, virtualTypeScriptFolder, callback) {
     fs.readFile(resxFilename, function (err, data) {
-        var parser = new xml2js.Parser();
+        const parser = new xml2js.Parser();
         parser.parseString(data, function (err, result) {
+            if (err && callback) {
+                callback(err);
+                return;
+            }
             if (result !== undefined) {
                 convertXmlToTypeScriptModelFile(result, resxFilename, typeScriptResourcesNamespace, virtualTypeScriptFolder);
+                if (callback !== undefined) {
+                    callback();
+                }
             }
         });
     });
 }
-function convertResxToJson(resxFilename, virtualJsonFolder, fileNameLanguage) {
+function convertResxToJson(resxFilename, virtualJsonFolder, fileNameLanguage, callback) {
     fs.readFile(resxFilename, function (err, data) {
-        var parser = new xml2js.Parser();
+        const parser = new xml2js.Parser();
         parser.parseString(data, function (err, result) {
+            if (err && callback) {
+                callback(err);
+                return;
+            }
             if (result !== undefined) {
                 convertXmlToJsonFile(result, resxFilename, virtualJsonFolder, fileNameLanguage);
+                if (callback !== undefined) {
+                    callback();
+                }
             }
         });
     });
 }
 function convertXmlToDictionary(xmlObject) {
-    var dictionary = {};
+    let dictionary = {};
     if (xmlObject.root.data !== undefined) {
-        for (var i = 0, nrOfResourcesInFile = xmlObject.root.data.length; i < nrOfResourcesInFile; i++) {
-            var key = xmlObject.root.data[i].$.name; // 
-            var value = xmlObject.root.data[i].value.toString();
+        for (let i = 0, nrOfResourcesInFile = xmlObject.root.data.length; i < nrOfResourcesInFile; i++) {
+            const key = xmlObject.root.data[i].$.name; // 
+            const value = xmlObject.root.data[i].value.toString();
             parseToDictionaryItem(key, value, dictionary);
         }
     }
@@ -107,10 +138,10 @@ function parseToDictionaryItem(key, value, dictionary) {
     if (!key.length) {
         return;
     }
-    var nestedKeyIndex = key.indexOf("_");
+    let nestedKeyIndex = key.indexOf("_");
     if (nestedKeyIndex >= 0) {
-        var firstKey = key.substring(0, nestedKeyIndex);
-        var restKey = key.substring(nestedKeyIndex + 1);
+        let firstKey = key.substring(0, nestedKeyIndex);
+        let restKey = key.substring(nestedKeyIndex + 1);
         if (!dictionary.hasOwnProperty(firstKey)) {
             dictionary[firstKey] = {};
         }
@@ -121,7 +152,7 @@ function parseToDictionaryItem(key, value, dictionary) {
     }
 }
 function convertDictionaryToTsMapping(dictionary, nest) {
-    var nestedTabs = "";
+    let nestedTabs = "";
     for (var i = 0; i < nest; i++) {
         nestedTabs += "\t";
     }
@@ -142,9 +173,8 @@ function convertDictionaryToTsMapping(dictionary, nest) {
     result += nestedTabs + "}";
     return result;
 }
-function convertDictionaryToTsValues(dictionary, nest, prefix) {
-    if (prefix === void 0) { prefix = ''; }
-    var nestedTabs = "";
+function convertDictionaryToTsValues(dictionary, nest, prefix = '') {
+    let nestedTabs = "";
     for (var i = 0; i < nest; i++) {
         nestedTabs += "\t";
     }
@@ -175,99 +205,99 @@ function convertDictionaryToTsValues(dictionary, nest, prefix) {
     result += nestedTabs + "}";
     return result;
 }
-function convertXmlToTypeScriptValuesFile(xmlObject, resxFilename, typeScriptResourcesNamespace, virtualTypeScriptFolder) {
-    var projectRoot = getProjectRoot();
-    var relativeResxFilename = resxFilename.replace(projectRoot, "").replace(/\\/g, "/");
-    var className = resxFilename.substr(resxFilename.lastIndexOf("\\") + 1).replace('.resx', '').replace(".", "_");
-    var content = '// TypeScript Resx model for: ' + relativeResxFilename + '\n' +
+function convertXmlToTypeScriptValuesFile(xmlObject, resxFilename, typeScriptResourcesNamespace, virtualTypeScriptFolder, callback) {
+    const projectRoot = getProjectRoot();
+    const relativeResxFilename = resxFilename.replace(projectRoot, "").replace(/\\/g, "/");
+    const className = resxFilename.substr(resxFilename.lastIndexOf("\\") + 1).replace('.resx', '').replace(".", "_");
+    let content = '// TypeScript Resx model for: ' + relativeResxFilename + '\n' +
         '// Auto generated by resx-to-ts-json (npm package)' + '\n' + '\n';
     //content = content + 'declare module ' + typeScriptResourcesNamespace + ' {\n';
     content = content + 'export const ' + className + ': ' + typeScriptResourcesNamespace + '.' + className + ' = ';
-    var dictionary = convertXmlToDictionary(xmlObject);
+    let dictionary = convertXmlToDictionary(xmlObject);
     content = content + convertDictionaryToTsValues(dictionary, 0, className + '.');
     content = content + '\n'; //'\n}\n';
     // Write model if resources found
     if (Object.keys(dictionary).length > 0) {
-        var relativeTsFilename = relativeResxFilename.replace('.resx', '.d.ts');
-        var tsFileName = resxFilename.replace('.resx', '.ts');
+        const relativeTsFilename = relativeResxFilename.replace('.resx', '.d.ts');
+        const tsFileName = resxFilename.replace('.resx', '.ts');
         if (virtualTypeScriptFolder === undefined || virtualTypeScriptFolder === '') {
             // Write the file aside of the the resx file.
-            fs.writeFile(tsFileName, content, null);
+            fs.writeFileSync(tsFileName, content);
             addTypeScriptFile.execute(tsFileName);
         }
         else {
             // Write the file to the given output folder.
-            var tsFileNameWithoutPath = tsFileName.substr(tsFileName.lastIndexOf('\\') + 1);
-            var outputFileName = (projectRoot + virtualTypeScriptFolder + '\\' + tsFileNameWithoutPath).split('/').join('\\');
-            var relativeOutputFileName = virtualTypeScriptFolder + '/' + tsFileNameWithoutPath;
+            const tsFileNameWithoutPath = tsFileName.substr(tsFileName.lastIndexOf('\\') + 1);
+            const outputFileName = (projectRoot + virtualTypeScriptFolder + '\\' + tsFileNameWithoutPath).split('/').join('\\');
+            const relativeOutputFileName = virtualTypeScriptFolder + '/' + tsFileNameWithoutPath;
             mkpath.sync(projectRoot + virtualTypeScriptFolder, '0700');
-            fs.writeFile(outputFileName, content, null);
+            fs.writeFileSync(outputFileName, content);
             addTypeScriptFile.execute(relativeOutputFileName);
         }
     }
 }
 function convertXmlToTypeScriptModelFile(xmlObject, resxFilename, typeScriptResourcesNamespace, virtualTypeScriptFolder) {
-    var projectRoot = getProjectRoot();
-    var relativeResxFilename = resxFilename.replace(projectRoot, "").replace(/\\/g, "/");
-    var className = resxFilename.substr(resxFilename.lastIndexOf("\\") + 1).replace('.resx', '').replace(".", "_");
-    var content = '// TypeScript Resx model for: ' + relativeResxFilename + '\n' +
+    const projectRoot = getProjectRoot();
+    const relativeResxFilename = resxFilename.replace(projectRoot, "").replace(/\\/g, "/");
+    const className = resxFilename.substr(resxFilename.lastIndexOf("\\") + 1).replace('.resx', '').replace(".", "_");
+    let content = '// TypeScript Resx model for: ' + relativeResxFilename + '\n' +
         '// Auto generated by resx-to-ts-json (npm package)' + '\n' + '\n';
     content = content + 'declare module ' + typeScriptResourcesNamespace + ' {\n';
     content = content + '\texport class ' + className + ' ';
-    var dictionary = convertXmlToDictionary(xmlObject);
+    let dictionary = convertXmlToDictionary(xmlObject);
     content = content + convertDictionaryToTsMapping(dictionary, 1);
     content = content + '\n}\n';
     // Write model if resources found
     if (Object.keys(dictionary).length > 0) {
-        var relativeTsFilename = relativeResxFilename.replace('.resx', '.d.ts');
-        var tsFileName = resxFilename.replace('.resx', '.d.ts');
+        const relativeTsFilename = relativeResxFilename.replace('.resx', '.d.ts');
+        const tsFileName = resxFilename.replace('.resx', '.d.ts');
         if (virtualTypeScriptFolder === undefined || virtualTypeScriptFolder === '') {
             // Write the file aside of the the resx file.
-            fs.writeFile(tsFileName, content, null);
+            fs.writeFileSync(tsFileName, content);
             addTypeScriptFile.execute(tsFileName);
         }
         else {
             // Write the file to the given output folder.
-            var tsFileNameWithoutPath = tsFileName.substr(tsFileName.lastIndexOf('\\') + 1);
-            var outputFileName = (projectRoot + virtualTypeScriptFolder + '\\' + tsFileNameWithoutPath).split('/').join('\\');
-            var relativeOutputFileName = virtualTypeScriptFolder + '/' + tsFileNameWithoutPath;
+            const tsFileNameWithoutPath = tsFileName.substr(tsFileName.lastIndexOf('\\') + 1);
+            const outputFileName = (projectRoot + virtualTypeScriptFolder + '\\' + tsFileNameWithoutPath).split('/').join('\\');
+            const relativeOutputFileName = virtualTypeScriptFolder + '/' + tsFileNameWithoutPath;
             mkpath.sync(projectRoot + virtualTypeScriptFolder, '0700');
-            fs.writeFile(outputFileName, content, null);
+            fs.writeFileSync(outputFileName, content);
             addTypeScriptFile.execute(relativeOutputFileName);
         }
     }
 }
-function convertXmlToJsonFile(xmlObject, resxFilename, virtualJsonFolder, fileNameLanguage) {
-    var projectRoot = getProjectRoot();
-    var relativeResxFilename = resxFilename.replace(projectRoot, "").replace(/\\/g, "/");
-    var dictionary = convertXmlToDictionary(xmlObject);
-    var content = JSON.stringify(dictionary);
+function convertXmlToJsonFile(xmlObject, resxFilename, virtualJsonFolder, fileNameLanguage, callback) {
+    const projectRoot = getProjectRoot();
+    const relativeResxFilename = resxFilename.replace(projectRoot, "").replace(/\\/g, "/");
+    let dictionary = convertXmlToDictionary(xmlObject);
+    let content = JSON.stringify(dictionary);
     // Write model if resources found
     if (Object.keys(dictionary).length > 0) {
-        var relativeJsonFilename = relativeResxFilename.replace('.resx', '.json');
-        var jsonFileName = resxFilename.replace('.resx', '.json');
+        const relativeJsonFilename = relativeResxFilename.replace('.resx', '.json');
+        const jsonFileName = resxFilename.replace('.resx', '.json');
         if (virtualJsonFolder === undefined || virtualJsonFolder === '') {
             // Write the file aside of the the resx file.
-            fs.writeFile(jsonFileName, content, null);
+            fs.writeFileSync(jsonFileName, content);
         }
         else {
             // Write the file to the given output folder.
-            var jsonFileNameWithoutPath = jsonFileName.substr(jsonFileName.lastIndexOf('\\') + 1);
+            let jsonFileNameWithoutPath = jsonFileName.substr(jsonFileName.lastIndexOf('\\') + 1);
             if (fileNameLanguage) {
-                var fileNameWithoutExtension = jsonFileNameWithoutPath.substring(0, jsonFileNameWithoutPath.indexOf(".json"));
-                jsonFileNameWithoutPath = fileNameWithoutExtension + "." + fileNameLanguage + ".json";
+                let fileNameWithoutExtension = jsonFileNameWithoutPath.substring(0, jsonFileNameWithoutPath.indexOf(".json"));
+                jsonFileNameWithoutPath = `${fileNameWithoutExtension}.${fileNameLanguage}.json`;
             }
-            var outputFileName = (projectRoot + virtualJsonFolder + '\\' + jsonFileNameWithoutPath).split('/').join('\\');
-            var relativeOutputFileName = virtualJsonFolder + '/' + jsonFileNameWithoutPath;
+            const outputFileName = (projectRoot + virtualJsonFolder + '\\' + jsonFileNameWithoutPath).split('/').join('\\');
+            const relativeOutputFileName = virtualJsonFolder + '/' + jsonFileNameWithoutPath;
             mkpath.sync(projectRoot + virtualJsonFolder, '0700');
-            fs.writeFile(outputFileName, content, null);
+            fs.writeFileSync(outputFileName, content);
         }
     }
 }
 function getProjectRoot() {
-    var splittedDirName = __dirname.split('\\');
-    var splittedRootDirName = [];
-    for (var i = 0, length_4 = splittedDirName.length - 3; i < length_4; i++) {
+    const splittedDirName = __dirname.split('\\');
+    const splittedRootDirName = [];
+    for (let i = 0, length = splittedDirName.length - 3; i < length; i++) {
         splittedRootDirName.push(splittedDirName[i]);
     }
     return splittedRootDirName.join('\\');

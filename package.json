@@ -1,6 +1,6 @@
 {
   "name": "resx-to-ts-json-options",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "description": "Converts resx files to TypeScript definitions and json files, configurable version",
   "main": "dist/index.js",
   "scripts": {
@@ -12,10 +12,12 @@
     "originalAuthor": "Martijn van der Corput"
   },
   "devDependencies": {
+    "@types/async": "^2.0.49",
     "typescript": "^2.6.0"
   },
   "dependencies": {
     "add-typescript-file-to-project": "1.0.1",
+    "async": "^2.6.1",
     "mkpath": "*",
     "recursive-search": "*",
     "xml2js": "*"
