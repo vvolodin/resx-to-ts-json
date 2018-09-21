@@ -3,6 +3,7 @@ declare const require: any;
 
 const addTypeScriptFile = require('add-typescript-file-to-project');
 const fs = require('fs');
+const path = require('path');
 const mkpath = require('mkpath');
 const search = require('recursive-search');
 const xml2js = require('xml2js');
@@ -253,7 +254,8 @@ function convertDictionaryToTsValues(dictionary: Dictionary, nest: number, prefi
 
 function convertXmlToTypeScriptValuesFile(xmlObject: any, resxFilename: string, typeScriptResourcesNamespace: string, virtualTypeScriptFolder: string, callback?: () => any): void {
     const projectRoot = getProjectRoot();
-    const relativeResxFilename = resxFilename.replace(projectRoot, "").replace(/\\/g, "/");
+    const relativeResxFilename = path.relative(projectRoot, resxFilename).replace(/\\/g, "/");
+    //const relativeResxFilename = resxFilename.replace(projectRoot, "").replace(/\\/g, "/");
     const className = resxFilename.substr(resxFilename.lastIndexOf("\\") + 1).replace('.resx', '').replace(".", "_");
 
     let content = '// TypeScript Resx model for: ' + relativeResxFilename + '\n' + 
@@ -294,7 +296,8 @@ function convertXmlToTypeScriptValuesFile(xmlObject: any, resxFilename: string, 
 
 function convertXmlToTypeScriptModelFile(xmlObject: any, resxFilename: string, typeScriptResourcesNamespace: string, virtualTypeScriptFolder: string): void {
     const projectRoot = getProjectRoot();
-    const relativeResxFilename = resxFilename.replace(projectRoot, "").replace(/\\/g, "/");
+    const relativeResxFilename = path.relative(projectRoot, resxFilename).replace(/\\/g, "/");
+    //const relativeResxFilename = resxFilename.replace(projectRoot, "").replace(/\\/g, "/");
     const className = resxFilename.substr(resxFilename.lastIndexOf("\\") + 1).replace('.resx', '').replace(".", "_");
 
     let content = '// TypeScript Resx model for: ' + relativeResxFilename + '\n' + 
@@ -335,7 +338,8 @@ function convertXmlToTypeScriptModelFile(xmlObject: any, resxFilename: string, t
 
 function convertXmlToJsonFile(xmlObject: any, resxFilename: string, virtualJsonFolder: string, fileNameLanguage?: string, callback?: (err?: any) => any): void {
     const projectRoot = getProjectRoot();
-    const relativeResxFilename = resxFilename.replace(projectRoot, "").replace(/\\/g, "/");
+    const relativeResxFilename = path.relative(projectRoot, resxFilename).replace(/\\/g, "/");
+    //const relativeResxFilename = resxFilename.replace(projectRoot, "").replace(/\\/g, "/");
 
     let dictionary = convertXmlToDictionary(xmlObject);
     let content = JSON.stringify(dictionary);
