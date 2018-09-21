@@ -8,10 +8,10 @@ const search = require('recursive-search');
 const xml2js = require('xml2js');
 const async = require('async');
 const virtualProjectRoot = '\\..\\..\\..\\';
-function executeResxToTs(typeScriptResourcesNamespace, virtualResxFolder, virtualTypeScriptFolder, callback) {
+function executeResxToTs(typeScriptResourcesNamespace, virtualResxFolder, virtualTypeScriptFolder, callback, skipAddingFiles) {
     let files = getFilesFromFolder(virtualResxFolder);
     async.each(files, (file, cb) => {
-        convertResxToTypeScriptModel(file, typeScriptResourcesNamespace, virtualTypeScriptFolder, cb);
+        convertResxToTypeScriptModel(file, typeScriptResourcesNamespace, virtualTypeScriptFolder, cb, skipAddingFiles);
     }, callback);
     //if (files !== undefined && files !== null) {
     //    for (let i = 0, length = files.length; i < length; i++) {   
@@ -21,7 +21,7 @@ function executeResxToTs(typeScriptResourcesNamespace, virtualResxFolder, virtua
     //}
 }
 exports.executeResxToTs = executeResxToTs;
-function executeResxToJson(virtualResxFolder, virtualJsonFolder, fileNameLanguage, callback) {
+function executeResxToJson(virtualResxFolder, virtualJsonFolder, fileNameLanguage, callback, skipAddingFiles) {
     let files = getFilesFromFolder(virtualResxFolder);
     async.each(files, (file, cb) => {
         convertResxToJson(file, virtualJsonFolder, fileNameLanguage, cb);
@@ -34,10 +34,10 @@ function executeResxToJson(virtualResxFolder, virtualJsonFolder, fileNameLanguag
     //}
 }
 exports.executeResxToJson = executeResxToJson;
-function executeResxToTsValues(typeScriptResourcesNamespace, virtualResxFolder, virtualTypeScriptFolder, callback) {
+function executeResxToTsValues(typeScriptResourcesNamespace, virtualResxFolder, virtualTypeScriptFolder, callback, skipAddingFiles) {
     let files = getFilesFromFolder(virtualResxFolder);
     async.each(files, (file, cb) => {
-        convertResxToTypeScriptValues(file, typeScriptResourcesNamespace, virtualTypeScriptFolder, cb);
+        convertResxToTypeScriptValues(file, typeScriptResourcesNamespace, virtualTypeScriptFolder, cb, skipAddingFiles);
     }, callback);
     //if (files !== undefined && files !== null) {
     //    for (let i = 0, length = files.length; i < length; i++) {   
@@ -70,7 +70,7 @@ function getFilesFromFolder(virtualResxFolder) {
         return cleanedFiles;
     }
 }
-function convertResxToTypeScriptValues(resxFilename, typeScriptResourcesNamespace, virtualTypeScriptFolder, callback) {
+function convertResxToTypeScriptValues(resxFilename, typeScriptResourcesNamespace, virtualTypeScriptFolder, callback, skipAddingFiles) {
     fs.readFile(resxFilename, function (err, data) {
         const parser = new xml2js.Parser();
         parser.parseString(data, function (err, result) {
@@ -79,7 +79,7 @@ function convertResxToTypeScriptValues(resxFilename, typeScriptResourcesNamespac
                 return;
             }
             if (result !== undefined) {
-                convertXmlToTypeScriptValuesFile(result, resxFilename, typeScriptResourcesNamespace, virtualTypeScriptFolder);
+                convertXmlToTypeScriptValuesFile(result, resxFilename, typeScriptResourcesNamespace, virtualTypeScriptFolder, skipAddingFiles);
                 if (callback !== undefined) {
                     callback();
                 }
@@ -87,7 +87,7 @@ function convertResxToTypeScriptValues(resxFilename, typeScriptResourcesNamespac
         });
     });
 }
-function convertResxToTypeScriptModel(resxFilename, typeScriptResourcesNamespace, virtualTypeScriptFolder, callback) {
+function convertResxToTypeScriptModel(resxFilename, typeScriptResourcesNamespace, virtualTypeScriptFolder, callback, skipAddingFiles) {
     fs.readFile(resxFilename, function (err, data) {
         const parser = new xml2js.Parser();
         parser.parseString(data, function (err, result) {
@@ -96,7 +96,7 @@ function convertResxToTypeScriptModel(resxFilename, typeScriptResourcesNamespace
                 return;
             }
             if (result !== undefined) {
-                convertXmlToTypeScriptModelFile(result, resxFilename, typeScriptResourcesNamespace, virtualTypeScriptFolder);
+                convertXmlToTypeScriptModelFile(result, resxFilename, typeScriptResourcesNamespace, virtualTypeScriptFolder, skipAddingFiles);
                 if (callback !== undefined) {
                     callback();
                 }
@@ -206,7 +206,7 @@ function convertDictionaryToTsValues(dictionary, nest, prefix = '') {
     result += nestedTabs + "}";
     return result;
 }
-function convertXmlToTypeScriptValuesFile(xmlObject, resxFilename, typeScriptResourcesNamespace, virtualTypeScriptFolder, callback) {
+function convertXmlToTypeScriptValuesFile(xmlObject, resxFilename, typeScriptResourcesNamespace, virtualTypeScriptFolder, skipAddingFiles) {
     const projectRoot = getProjectRoot();
     const relativeResxFilename = path.relative(projectRoot, resxFilename).replace(/\\/g, "/");
     //const relativeResxFilename = resxFilename.replace(projectRoot, "").replace(/\\/g, "/");
@@ -225,7 +225,8 @@ function convertXmlToTypeScriptValuesFile(xmlObject, resxFilename, typeScriptRes
         if (virtualTypeScriptFolder === undefined || virtualTypeScriptFolder === '') {
             // Write the file aside of the the resx file.
             fs.writeFileSync(tsFileName, content);
-            addTypeScriptFile.execute(tsFileName);
+            if (!skipAddingFiles)
+                addTypeScriptFile.execute(tsFileName);
         }
         else {
             // Write the file to the given output folder.
@@ -234,11 +235,12 @@ function convertXmlToTypeScriptValuesFile(xmlObject, resxFilename, typeScriptRes
             const relativeOutputFileName = virtualTypeScriptFolder + '/' + tsFileNameWithoutPath;
             mkpath.sync(projectRoot + virtualTypeScriptFolder, '0700');
             fs.writeFileSync(outputFileName, content);
-            addTypeScriptFile.execute(relativeOutputFileName);
+            if (!skipAddingFiles)
+                addTypeScriptFile.execute(relativeOutputFileName);
         }
     }
 }
-function convertXmlToTypeScriptModelFile(xmlObject, resxFilename, typeScriptResourcesNamespace, virtualTypeScriptFolder) {
+function convertXmlToTypeScriptModelFile(xmlObject, resxFilename, typeScriptResourcesNamespace, virtualTypeScriptFolder, skipAddingFiles) {
     const projectRoot = getProjectRoot();
     const relativeResxFilename = path.relative(projectRoot, resxFilename).replace(/\\/g, "/");
     //const relativeResxFilename = resxFilename.replace(projectRoot, "").replace(/\\/g, "/");
@@ -257,7 +259,8 @@ function convertXmlToTypeScriptModelFile(xmlObject, resxFilename, typeScriptReso
         if (virtualTypeScriptFolder === undefined || virtualTypeScriptFolder === '') {
             // Write the file aside of the the resx file.
             fs.writeFileSync(tsFileName, content);
-            addTypeScriptFile.execute(tsFileName);
+            if (!skipAddingFiles)
+                addTypeScriptFile.execute(tsFileName);
         }
         else {
             // Write the file to the given output folder.
@@ -266,11 +269,12 @@ function convertXmlToTypeScriptModelFile(xmlObject, resxFilename, typeScriptReso
             const relativeOutputFileName = virtualTypeScriptFolder + '/' + tsFileNameWithoutPath;
             mkpath.sync(projectRoot + virtualTypeScriptFolder, '0700');
             fs.writeFileSync(outputFileName, content);
-            addTypeScriptFile.execute(relativeOutputFileName);
+            if (!skipAddingFiles)
+                addTypeScriptFile.execute(relativeOutputFileName);
         }
     }
 }
-function convertXmlToJsonFile(xmlObject, resxFilename, virtualJsonFolder, fileNameLanguage, callback) {
+function convertXmlToJsonFile(xmlObject, resxFilename, virtualJsonFolder, fileNameLanguage) {
     const projectRoot = getProjectRoot();
     const relativeResxFilename = path.relative(projectRoot, resxFilename).replace(/\\/g, "/");
     //const relativeResxFilename = resxFilename.replace(projectRoot, "").replace(/\\/g, "/");
