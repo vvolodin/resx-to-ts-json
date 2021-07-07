@@ -9,7 +9,7 @@ const search = require('recursive-search');
 const xml2js = require('xml2js');
 const async = require('async');
 
-const virtualProjectRoot = '\\..\\..\\..\\';
+const virtualProjectRoot = '/../../../';
 
 interface Dictionary {
     [key: string]: string | Dictionary;
